@@ -1,0 +1,732 @@
+{
+	"info": {
+		"name": "Soul-Bound Token Service API",
+		"description": "API collection for Soul-Bound Token Service - All working endpoints with test scripts",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "sbt-service-v2"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "testuser2",
+			"type": "string"
+		},
+		{
+			"key": "walletAddress",
+			"value": "0xf1a2f4f05c89190aee18a1311de4ef1180e02037",
+			"type": "string"
+		},
+		{
+			"key": "delegateWalletAddress",
+			"value": "0xbC8255F1aA96261564d6C672f4F98C78fE9347a2",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has required fields\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('status');",
+							"    pm.expect(jsonData).to.have.property('timestamp');",
+							"    pm.expect(jsonData).to.have.property('uptime');",
+							"    pm.expect(jsonData).to.have.property('environment');",
+							"    pm.expect(jsonData).to.have.property('database');",
+							"});",
+							"",
+							"pm.test(\"Database status is connected\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.database.status).to.eql('connected');",
+							"    pm.expect(jsonData.database.connected).to.be.true;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/health",
+					"host": ["{{baseUrl}}"],
+					"path": ["health"]
+				}
+			}
+		},
+		{
+			"name": "Register User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"User data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('userId');",
+							"    pm.expect(jsonData.data).to.have.property('walletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('status');",
+							"    pm.expect(jsonData.data.walletAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"    pm.expect(jsonData.data.status).to.eql('registered');",
+							"});",
+							"",
+							"pm.test(\"Save wallet address to variable\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    if (jsonData.data && jsonData.data.walletAddress) {",
+							"        pm.collectionVariables.set('walletAddress', jsonData.data.walletAddress);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"publicKey\": \"f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037\",\n  \"email\": \"test@example.com\",\n  \"name\": \"Test User\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/registerUser",
+					"host": ["{{baseUrl}}"],
+					"path": ["registerUser"]
+				}
+			}
+		},
+		{
+			"name": "Issue Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Token data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('tokenId');",
+							"    pm.expect(jsonData.data).to.have.property('walletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('blockchain');",
+							"    pm.expect(jsonData.data).to.have.property('contractAddress');",
+							"    pm.expect(jsonData.data).to.have.property('imageUrl');",
+							"    pm.expect(jsonData.data).to.have.property('timestamp');",
+							"    pm.expect(jsonData.data.walletAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"    pm.expect(jsonData.data.contractAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"});",
+							"",
+							"pm.test(\"Message indicates success\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('successfully');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"walletAddress\": \"{{walletAddress}}\",\n  \"hid\": [196,236,159,70,117,11,167,61,160,158,247,73,184,208,173,74,52,230,69,3,72,177,97,85,68,36,99,238,189,105,29,102],\n  \"himei\": [128,45,74,130,117,69,124,210,222,76,181,115,211,86,118,52,34,220,137,186,15,179,125,68,84,164,58,25,8,48,119,121],\n  \"mcc\": \"886\",\n  \"mnc\": \"1\",\n  \"distributor\": \"Taisys\",\n  \"sig\": [219,116,210,73,156,240,43,211,120,137,199,116,45,227,177,12,123,238,171,163,253,183,34,131,168,86,246,188,79,69,67,124,66,87,229,38,201,57,231,80,82,111,131,110,213,92,206,94,126,165,132,190,104,114,111,225,229,15,201,10,248,27,136,186,0],\n  \"leaf\": \"0\",\n  \"proof\": [[200,158,253,170,84,192,242,12,122,223,97,40,130,223,9,80,245,169,81,99,126,3,7,205,203,76,103,47,41,139,139,198]],\n  \"fid\": \"3\",\n  \"bid\": \"4\",\n  \"mid\": 8735355190715,\n  \"blockchain\": \"01\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/issueToken",
+					"host": ["{{baseUrl}}"],
+					"path": ["issueToken"]
+				}
+			}
+		},
+		{
+			"name": "Check Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Token check data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('walletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('blockchain');",
+							"    pm.expect(jsonData.data).to.have.property('balance');",
+							"    pm.expect(jsonData.data).to.have.property('verified');",
+							"    pm.expect(jsonData.data.walletAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"    pm.expect(jsonData.data.balance).to.be.a('number');",
+							"    pm.expect(jsonData.data.verified).to.be.a('boolean');",
+							"});",
+							"",
+							"pm.test(\"Balance is non-negative\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data.balance).to.be.at.least(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/checkToken?walletAddress={{walletAddress}}&blockchain=01&isDelegated=false",
+					"host": ["{{baseUrl}}"],
+					"path": ["checkToken"],
+					"query": [
+						{
+							"key": "walletAddress",
+							"value": "{{walletAddress}}",
+							"description": ""
+						},
+						{
+							"key": "blockchain",
+							"value": "01",
+							"description": ""
+						},
+						{
+							"key": "isDelegated",
+							"value": "false",
+							"description": ""
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Check Token - Delegated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Delegated token check data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('walletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('balance');",
+							"    pm.expect(jsonData.data).to.have.property('verified');",
+							"    pm.expect(jsonData.data.balance).to.be.a('number');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/checkToken?walletAddress={{walletAddress}}&blockchain=01&isDelegated=true",
+					"host": ["{{baseUrl}}"],
+					"path": ["checkToken"],
+					"query": [
+						{
+							"key": "walletAddress",
+							"value": "{{walletAddress}}",
+							"description": ""
+						},
+						{
+							"key": "blockchain",
+							"value": "01",
+							"description": ""
+						},
+						{
+							"key": "isDelegated",
+							"value": "true",
+							"description": ""
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Delegate Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Delegate token data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('tokenId');",
+							"    pm.expect(jsonData.data).to.have.property('walletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('delegateWalletAddress');",
+							"    pm.expect(jsonData.data).to.have.property('blockchain');",
+							"    pm.expect(jsonData.data).to.have.property('contractAddress');",
+							"    pm.expect(jsonData.data).to.have.property('imageUrl');",
+							"    pm.expect(jsonData.data).to.have.property('timestamp');",
+							"    pm.expect(jsonData.data.walletAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"    pm.expect(jsonData.data.delegateWalletAddress).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"});",
+							"",
+							"pm.test(\"Message indicates delegation success\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.include('delegated');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"walletAddress\": \"{{walletAddress}}\",\n  \"delegateWalletAddress\": \"{{delegateWalletAddress}}\",\n  \"hid\": [196,236,159,70,117,11,167,61,160,158,247,73,184,208,173,74,52,230,69,3,72,177,97,85,68,36,99,238,189,105,29,102],\n  \"himei\": [128,45,74,130,117,69,124,210,222,76,181,115,211,86,118,52,34,220,137,186,15,179,125,68,84,164,58,25,8,48,119,121],\n  \"mcc\": \"886\",\n  \"mnc\": \"1\",\n  \"distributor\": \"Taisys\",\n  \"sig\": [66,251,54,11,104,141,147,216,174,36,132,135,182,63,251,145,48,25,67,200,200,65,56,24,224,237,30,169,70,164,63,95,40,147,10,190,95,118,8,189,234,127,160,87,6,224,206,239,150,37,253,113,103,46,121,140,209,178,192,8,19,196,239,175,0],\n  \"blockchain\": \"01\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/delegateToken",
+					"host": ["{{baseUrl}}"],
+					"path": ["delegateToken"]
+				}
+			}
+		},
+		{
+			"name": "Mint Reward Token - VCT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Mint data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('blockchain');",
+							"    pm.expect(jsonData.data).to.have.property('recipients');",
+							"    pm.expect(jsonData.data).to.have.property('timestamp');",
+							"    pm.expect(jsonData.data.recipients).to.be.an('array');",
+							"    pm.expect(jsonData.data.recipients.length).to.be.at.least(1);",
+							"});",
+							"",
+							"pm.test(\"Recipients have correct structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    jsonData.data.recipients.forEach(function(recipient) {",
+							"        pm.expect(recipient).to.have.property('address');",
+							"        pm.expect(recipient).to.have.property('amount');",
+							"        pm.expect(recipient).to.have.property('status');",
+							"        pm.expect(recipient.address).to.match(/^0x[a-fA-F0-9]{40}$/);",
+							"        pm.expect(recipient.amount).to.be.a('number');",
+							"        pm.expect(recipient.status).to.eql('minted');",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tokenType\": \"VCT\",\n  \"recipients\": [\n    {\n      \"address\": \"{{walletAddress}}\",\n      \"amount\": 0.1\n    },\n    {\n      \"address\": \"0x4Ab04f6D0890f7fd9da55b72351eCdd1884aA3C4\",\n      \"amount\": 1.1\n    }\n  ],\n  \"blockchain\": \"01\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mintRewardToken",
+					"host": ["{{baseUrl}}"],
+					"path": ["mintRewardToken"]
+				}
+			}
+		},
+		{
+			"name": "Mint Reward Token - WCT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response has success structure\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('success');",
+							"    pm.expect(jsonData).to.have.property('data');",
+							"    pm.expect(jsonData).to.have.property('message');",
+							"    pm.expect(jsonData.success).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"WCT mint data is correct\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData.data).to.have.property('blockchain');",
+							"    pm.expect(jsonData.data).to.have.property('recipients');",
+							"    pm.expect(jsonData.data.recipients).to.be.an('array');",
+							"    pm.expect(jsonData.data.recipients.length).to.be.at.least(1);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tokenType\": \"WCT\",\n  \"recipients\": [\n    {\n      \"address\": \"{{walletAddress}}\",\n      \"amount\": 0.5\n    }\n  ],\n  \"blockchain\": \"01\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/mintRewardToken",
+					"host": ["{{baseUrl}}"],
+					"path": ["mintRewardToken"]
+				}
+			}
+		},
+		{
+			"name": "Edge Cases",
+			"item": [
+				{
+					"name": "Register User - Missing PublicKey",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error).to.include('Public key');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"testuser3\",\n  \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/registerUser",
+							"host": ["{{baseUrl}}"],
+							"path": ["registerUser"]
+						}
+					}
+				},
+				{
+					"name": "Issue Token - Invalid Wallet Address",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('wallet');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"walletAddress\": \"invalid-address\",\n  \"hid\": [196,236,159,70,117,11,167,61,160,158,247,73,184,208,173,74,52,230,69,3,72,177,97,85,68,36,99,238,189,105,29,102],\n  \"himei\": [128,45,74,130,117,69,124,210,222,76,181,115,211,86,118,52,34,220,137,186,15,179,125,68,84,164,58,25,8,48,119,121],\n  \"mcc\": \"886\",\n  \"mnc\": \"1\",\n  \"distributor\": \"Taisys\",\n  \"sig\": [219,116,210,73,156,240,43,211,120,137,199,116,45,227,177,12,123,238,171,163,253,183,34,131,168,86,246,188,79,69,67,124,66,87,229,38,201,57,231,80,82,111,131,110,213,92,206,94,126,165,132,190,104,114,111,225,229,15,201,10,248,27,136,186,0],\n  \"leaf\": \"0\",\n  \"proof\": [[200,158,253,170,84,192,242,12,122,223,97,40,130,223,9,80,245,169,81,99,126,3,7,205,203,76,103,47,41,139,139,198]],\n  \"fid\": \"3\",\n  \"bid\": \"4\",\n  \"mid\": 8735355190715,\n  \"blockchain\": \"01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/issueToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["issueToken"]
+						}
+					}
+				},
+				{
+					"name": "Check Token - Missing Parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/checkToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["checkToken"]
+						}
+					}
+				},
+				{
+					"name": "Mint Reward Token - Invalid Token Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('token type');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tokenType\": \"INVALID\",\n  \"recipients\": [\n    {\n      \"address\": \"{{walletAddress}}\",\n      \"amount\": 0.1\n    }\n  ],\n  \"blockchain\": \"01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mintRewardToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["mintRewardToken"]
+						}
+					}
+				},
+				{
+					"name": "Mint Reward Token - Negative Amount",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('amount');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tokenType\": \"VCT\",\n  \"recipients\": [\n    {\n      \"address\": \"{{walletAddress}}\",\n      \"amount\": -0.1\n    }\n  ],\n  \"blockchain\": \"01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mintRewardToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["mintRewardToken"]
+						}
+					}
+				},
+				{
+					"name": "Mint Reward Token - Empty Recipients",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Response indicates validation error\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('success');",
+									"    pm.expect(jsonData.success).to.be.false;",
+									"    pm.expect(jsonData).to.have.property('error');",
+									"    pm.expect(jsonData.error.toLowerCase()).to.include('recipient');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"tokenType\": \"VCT\",\n  \"recipients\": [],\n  \"blockchain\": \"01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mintRewardToken",
+							"host": ["{{baseUrl}}"],
+							"path": ["mintRewardToken"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
