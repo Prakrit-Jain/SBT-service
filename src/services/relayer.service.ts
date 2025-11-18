@@ -48,7 +48,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service error');
     }
   }
 
@@ -66,10 +66,12 @@ class RelayerService {
     }
 
     try {
+      console.log("Debugger");
       const response = await RelayerClient.client.post<RelayerResponse>(
         '/relayer/bip/mid',
         request
       );
+      console.log("Debugger123");
 
       if (response.data.status === 1) {
         return response.data;
@@ -84,7 +86,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service error');
     }
   }
 
@@ -120,7 +122,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service error');
     }
   }
 
@@ -154,7 +156,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service error');
     }
   }
 
@@ -190,7 +192,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service is ');
     }
   }
 
@@ -212,7 +214,7 @@ class RelayerService {
     } catch (error: any) {
       if (error instanceof RelayerApiError) throw error;
       logger.error('Relayer API error:', error.message);
-      throw new ServiceUnavailableError('Relayer service is unavailable');
+      throw new ServiceUnavailableError('Relayer service error');
     }
   }
 }

@@ -18,7 +18,7 @@
 		},
 		{
 			"key": "walletAddress",
-			"value": "0xf1a2f4f05c89190aee18a1311de4ef1180e02037",
+			"value": "0x23460b772eee2f4e4216b5ea82a97feec1ec628d",
 			"type": "string"
 		},
 		{
@@ -117,7 +117,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"publicKey\": \"f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037f1a2f4f05c89190aee18a1311de4ef1180e02037\",\n  \"email\": \"test@example.com\",\n  \"name\": \"Test User\"\n}"
+					"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"publicKey\": \"3ea8c7d23a5a642319d765653f4a7da0c883c16984fb14b9961eb36744d4a66270f8858c6d453ba5ee12e7b34e854cadaee8cfb0a66007cc2ccfb7e5c35f0ebd\",\n  \"email\": \"test@example.com\",\n  \"name\": \"Test User\"\n}"
 				},
 				"url": {
 					"raw": "{{baseUrl}}/registerUser",
